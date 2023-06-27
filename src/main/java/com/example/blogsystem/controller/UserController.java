@@ -39,9 +39,9 @@ public class UserController {
         if (user1.size()== 0){
             code=200;
             userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
-            return new Result(code,"注册成功",user);
+            return new Result(code,"注册成功",null);
         }
-        return new Result(code,"注册失败",user);
+        return new Result(code,"注册失败",null);
     }
 
     @PostMapping("/user/delete")

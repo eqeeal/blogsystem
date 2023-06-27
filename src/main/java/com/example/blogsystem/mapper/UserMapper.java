@@ -4,28 +4,30 @@ import com.example.blogsystem.entity.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
 public interface UserMapper {
 
-    @Select("select * from tb_user;")
-    List<User> findAll();
+//    @Select("select * from tb_user;")
+    ArrayList<User> findAll();
 
-    @Select("select * from tb_user where userPhone=#{userPhone} and userPass=#{userPass}")
+//    @Select("select * from tb_user where userPhone=#{userPhone} and userPass=#{userPass}")
     List<User> login(@Param("userPhone") String userphone,@Param("userPass") String userpass);
 
-    @Insert("insert into tb_user(userName,userPass,userPhone) values(#{userName},#{userPass},#{userPhone})")
+//    @Insert("insert into tb_user(userName,userPass,userPhone) values(#{userName},#{userPass},#{userPhone})")
     void res(@Param("userName") String username,@Param("userPass") String userpass,@Param("userPhone") String userphone);
 
-    @Select("select * from tb_user where userPhone=#{userPhone}")
+//    @Select("select * from tb_user where userPhone=#{userPhone}")
     List<User> findUserByPhone(User user);
 //    List<User> findUserByPhone(@Param("userPhone") String userphone);
 
 
-    @Delete("delete from tb_user where id=#{id}")
+//    @Delete("delete from tb_user where id=#{id}")
     int deleteById(User user);//删除用户账号
 
-    @Insert("update tb_user set userName=#{userName},userAvatar=#{userAvatar},userEmail=#{userEmail} where id=#{id}")
+//    @Update("update tb_user set userName=#{userName},userAvatar=#{userAvatar},userEmail=#{userEmail} where id=#{id}")
     int updateUser(User user);
+
 }

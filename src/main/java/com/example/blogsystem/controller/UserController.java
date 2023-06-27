@@ -43,4 +43,25 @@ public class UserController {
         }
         return new Result(code,"注册失败",user);
     }
+
+    @PostMapping("/user/delete")
+    public Result<Integer> deleteUserById(@RequestBody User user){
+        Integer result=userMapper.deleteById(user);
+        if (result>0){
+            return new Result(200,"删除成功","");
+        }
+
+        return new Result(-1,"删除失败","");
+    }
+
+    @PostMapping("/user/update")
+    public Result<String> updateUser(@RequestBody User user){
+        int result= userMapper.updateUser(user);
+        if (result>0){
+            return new Result(200,"更新成功",user);
+        }else {
+            return new Result(-1,"更新失败",user);
+        }
+
+    }
 }

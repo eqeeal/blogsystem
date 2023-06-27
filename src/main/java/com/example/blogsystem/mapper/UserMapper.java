@@ -1,10 +1,7 @@
 package com.example.blogsystem.mapper;
 
 import com.example.blogsystem.entity.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -24,4 +21,11 @@ public interface UserMapper {
     @Select("select * from tb_user where userPhone=#{userPhone}")
     List<User> findUserByPhone(User user);
 //    List<User> findUserByPhone(@Param("userPhone") String userphone);
+
+
+    @Delete("delete from tb_user where id=#{id}")
+    int deleteById(User user);//删除用户账号
+
+    @Insert("update tb_user set userName=#{userName},userAvatar=#{userAvatar},userEmail=#{userEmail} where id=#{id}")
+    int updateUser(User user);
 }

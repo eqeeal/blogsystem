@@ -1,9 +1,9 @@
 package com.example.blogsystem.controller;
 
-import com.example.blogsystem.entity.Result;
+import com.example.blogsystem.common.Result;
 import com.example.blogsystem.entity.User;
 import com.example.blogsystem.mapper.UserMapper;
-import org.apache.ibatis.annotations.Insert;
+import com.example.blogsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +21,7 @@ public class UserController {
 
     //    @GetMapping
     @GetMapping("/login")
-    public Result<User> login(@RequestParam("userPhone") String userphone, @RequestParam("userPass") String userPass){
+    public Result<String> login(@RequestParam("userPhone") String userphone, @RequestParam("userPass") String userPass){
         String Message="登录失败";
         int code=-1;
         List<User> user=userMapper.login(userphone,userPass);
@@ -53,9 +53,9 @@ public class UserController {
 
         return new Result(-1,"删除失败","");
     }
-
     @PostMapping("/user/update")
     public Result<String> updateUser(@RequestBody User user){
+
         int result= userMapper.updateUser(user);
         if (result>0){
             return new Result(200,"更新成功",user);

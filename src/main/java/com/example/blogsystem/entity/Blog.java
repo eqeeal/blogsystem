@@ -6,13 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- *
+ * 
  * </p>
  *
  * @author shj
@@ -20,41 +19,35 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("tb_user")
-public class User implements Serializable {
+@TableName("tb_blog")
+public class Blog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户名
+     * 帖子标题
      */
-    private String userName;
+    private String title;
+
+    private String path;
 
     /**
-     * 用户登录密码
+     * 分类id
      */
-    private String userPass;
-
-    /**
-     * 手机号
-     */
-    private String userPhone;
-
-    /**
-     * 用户头像地址
-     */
-    private String userAvatar;
-
-    /**
-     * 用户邮箱
-     */
-    private String userEmail;
+    private Integer categoryId;
 
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private String createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updataTime;
+    private String updateTime;
+
+    /**
+     * 访问量
+     */
+    private Integer view;
+
+    private Integer userId;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;

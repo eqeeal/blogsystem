@@ -9,58 +9,55 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
+@RequestMapping("/user")
 //@CrossOrigin(originPatterns = )
 public class UserController {
     @Autowired
     private UserMapper userMapper;
 
-    @GetMapping("/user/findAll")
+    @GetMapping("/findAll")
     public List<User> index(){
         return userMapper.findAll();
     }
 
     //    @GetMapping
     @GetMapping("/login")
-    public Result<String> login(@RequestParam("userPhone") String userphone, @RequestParam("userPass") String userPass){
+    public Result<String> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass){
         String Message="登录失败";
-        int code=-1;
-        List<User> user=userMapper.login(userphone,userPass);
+        List<User> user=userMapper.login(userPhone,userPass);
         if (user.size()>0){
             Message="登录成功";
-            code=200;
+            return Result.ok(Message);
         }
-        return new Result(code,Message,"");
+        return Result.fail(Message);
     }
-    @PostMapping("/user/add")
-    public Result<User> register(@RequestBody User user){
+    @PostMapping("/add")
+    public Result<String> register(@RequestBody User user){
 //        System.out.println(user.toString());
-        int code=-1;
         List<User> user1=userMapper.findUserByPhone(user);
         if (user1.size()== 0){
-            code=200;
             userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
-            return new Result(code,"注册成功",null);
+            return Result.ok("注册成功");
         }
-        return new Result(code,"注册失败",null);
+        return Result.fail("注册失败");
     }
 
-    @PostMapping("/user/delete")
-    public Result<Integer> deleteUserById(@RequestBody User user){
+    @PostMapping("/delete")
+    public Result<String> deleteUserById(@RequestBody User user){
         Integer result=userMapper.deleteById(user);
         if (result>0){
-            return new Result(200,"删除成功","");
+            return Result.ok("删除成功");
         }
-
-        return new Result(-1,"删除失败","");
+        return Result.fail("删除失败");
     }
-    @PostMapping("/user/update")
+    @PostMapping("/update")
     public Result<String> updateUser(@RequestBody User user){
 
         int result= userMapper.updateUser(user);
         if (result>0){
-            return new Result(200,"更新成功",user);
+            return Result.ok("更新成功");
         }else {
-            return new Result(-1,"更新失败",user);
+            return Result.fail("更新失败");
         }
 
     }

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: blogSystem
@@ -20,3 +20,5 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+limit-text-file:
+  path: D:/111/limitTextFile.txt

@@ -1,5 +1,7 @@
 package com.example.blogsystem.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import lombok.Getter;
@@ -23,6 +25,7 @@ public class Tag implements Serializable {
     /**
      * 主键id
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**

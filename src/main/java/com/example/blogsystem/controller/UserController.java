@@ -17,6 +17,7 @@ public class UserController {
 
     @GetMapping("/findAll")
     public List<User> index(){
+
         return userMapper.findAll();
     }
 

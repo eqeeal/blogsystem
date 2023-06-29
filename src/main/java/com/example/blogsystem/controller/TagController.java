@@ -23,9 +23,15 @@ import java.util.List;
 public class TagController {
     @Autowired
     private TagService tagService;
+
+    /**
+     * 获取所有的
+     * @return
+     */
     @GetMapping("/findAll")
     public Result<List<Tag>> findAll(){
         List<Tag> list=tagService.findAll();
         return Result.ok(list,"获取成功");
     }
+
 }

@@ -8,6 +8,17 @@ spring:
     url: jdbc:mysql://localhost:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 12345
+  redis:
+    host: localhost
+    port: 6379
+    #password:
+    database: 0 #16个数据库中选择0号数据库 可以在在配置文件中修改数据库数量 在cli中可以用selcet 1来切换当前所在的数据库
+    jedis:
+      pool:
+        max-active: 8 #最大连接数
+        max-wait: 1ms #连接池最大等待时间
+        max-idle: 4 #连接池最大空闲连接
+        min-idle: 0 #连接池最小空闲连接
 mybatis-plus:
   configuration:
     #???????????????????????????????????????
@@ -22,3 +33,4 @@ mybatis:
    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 limit-text-file:
   path: D:/111/limitTextFile.txt
+

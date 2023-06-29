@@ -16,4 +16,6 @@ public interface CommentService extends IService<Comment> {
     void postMianComment(Comment comment);
 
     String check(String input);
+
+    boolean updateMianCommentStatus(Integer id,Integer status);
 }

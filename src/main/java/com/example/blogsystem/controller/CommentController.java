@@ -34,4 +34,11 @@ public class CommentController {
         commentService.postMianComment(comment);
         return Result.ok("评论成功");
     }
+    @GetMapping("/updateMianCommentStatus")
+    public Result<String> updateMianCommentStatus(@RequestParam("id") Integer id,@RequestParam("status") Integer status){
+        if(commentService.updateMianCommentStatus(id,status)){
+            return Result.ok("修改成功");
+        }
+        return Result.fail("修改失败");
+    }
 }

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisUtil {
     @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
+    private RedisTemplate redisTemplate;
     //清理指定的缓存
     public   void  cleanCache(String key){
         Set<String> keys = redisTemplate.keys("*");

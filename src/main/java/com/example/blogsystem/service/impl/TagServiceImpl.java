@@ -35,4 +35,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         }
 
     }
+
+    @Override
+    public Integer countTags(String input) {
+        int sizeTags=query().like(input!=null,"tag_name",input).list().size();
+        return sizeTags;
+    }
+
+    @Override
+    public List<Tag> findTags(String input) {
+        return query().like(input!=null,"tag_name",input).list();
+    }
 }

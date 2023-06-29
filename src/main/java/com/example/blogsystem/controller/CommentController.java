@@ -3,10 +3,13 @@ package com.example.blogsystem.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
+import com.example.blogsystem.dto.CommentQuray;
 import com.example.blogsystem.entity.Comment;
 import com.example.blogsystem.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+
 
 /**
  * <p>
@@ -21,13 +24,13 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
     @Autowired
     private CommentService commentService;
+    @GetMapping("/test")
+    public Result<String> test(){
+        return Result.ok();
+    };
     @GetMapping("/page")
-    public Result<Page<Comment>> pageResult(@RequestParam Integer page,@RequestParam Integer pageSize,@RequestParam String input){
-        Page<Comment> commentPage=new Page<>(page,pageSize);
-        LambdaQueryWrapper<Comment> queryWrapper=new LambdaQueryWrapper<>();
-        queryWrapper.like(input!=null,Comment::getContent,input);
-        commentService.page(commentPage,queryWrapper);
-        return Result.ok(commentPage,"第"+page+"页");
+    public Result<Page<Comment>> page(@RequestBody CommentQuray commentQuray){
+        return Result.ok(commentService.getPage(commentQuray),"第"+commentQuray.getPage()+"页");
     }
     @PostMapping("/postMianComment")
     public Result<String> postMianComment(@RequestBody Comment comment){

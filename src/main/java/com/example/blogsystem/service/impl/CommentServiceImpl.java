@@ -1,16 +1,19 @@
 package com.example.blogsystem.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.blogsystem.dto.CommentQuray;
 import com.example.blogsystem.entity.Comment;
 import com.example.blogsystem.mapper.CommentMapper;
 import com.example.blogsystem.service.CommentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.blogsystem.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,13 +36,13 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         save(comment);
     }
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisUtil redisUtil;
     @Override
     public String check(String input) {
         String key="limitText";
-        StringBuilder sb=new StringBuilder();
-        List<String> range = redisTemplate.opsForList().range(key, 0, -1);
-        if(range!=null&&range.size()!=0){
+        StringBuilder sb;
+        if(redisUtil.hasKey(key)){
+            List<String> range = (List<String>) redisUtil.getListCache(key);
             for (String str:range
                  ) {
                 sb=new StringBuilder();
@@ -57,7 +60,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 BufferedReader bufferedReader=new BufferedReader(fileReader);
                 String str;
                 while ((str=bufferedReader.readLine())!=null){
-                    redisTemplate.opsForList().rightPush(key,str);
+                    redisUtil.setListCache(key,str);
                     sb=new StringBuilder();
                     sb.append(str.charAt(0));
                     int len=str.length();
@@ -66,7 +69,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                     }
                     input=input.replaceAll(str,sb.toString());
                 }
-                redisTemplate.expire(key,30, TimeUnit.MINUTES);
+                redisUtil.expire(key,30,TimeUnit.MINUTES);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,5 +82,24 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         Comment comment = getById(id);
         comment.setStatus(status);
         return updateById(comment);
+    }
+    @Override
+    public Page<Comment> getPage(CommentQuray commentQuray) {
+        String key = commentQuray.getRedisKey("Comment");
+        Page<Comment> commentPage=new Page<>(commentQuray.getPage(),commentQuray.getPageSize());
+        if(redisUtil.hasKey(key)){
+            commentPage = (Page<Comment>) redisUtil.getCache(key);
+        }
+        else {
+            LambdaQueryWrapper<Comment> queryWrapper=new LambdaQueryWrapper<>();
+            queryWrapper.eq(commentQuray.getBlogId()!=null,Comment::getBlogId,commentQuray.getBlogId());
+            queryWrapper.eq(commentQuray.getUserId()!=null,Comment::getUserId,commentQuray.getUserId());
+            queryWrapper.like(commentQuray.getInput()!=null,Comment::getContent,commentQuray.getInput());
+            queryWrapper.orderByDesc(Comment::getCreateTime);
+            page(commentPage,queryWrapper);
+            if (commentPage.getTotal()!=0)
+                redisUtil.setCache(key,commentPage,5,TimeUnit.MINUTES);
+        }
+        return commentPage;
     }
 }

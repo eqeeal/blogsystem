@@ -9,7 +9,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author shj
@@ -45,7 +45,7 @@ public class Recomment implements Serializable {
     /**
      * 	审批状态：0-待审核、1-表示审核通过、2-审核未通过
      */
-    private Byte status;
+    private Integer status;
 
     /**
      * 评论时间

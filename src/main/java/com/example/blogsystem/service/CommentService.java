@@ -1,5 +1,7 @@
 package com.example.blogsystem.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.blogsystem.dto.CommentQuray;
 import com.example.blogsystem.entity.Comment;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -18,4 +20,6 @@ public interface CommentService extends IService<Comment> {
     String check(String input);
 
     boolean updateMianCommentStatus(Integer id,Integer status);
+
+    Page<Comment> getPage(CommentQuray commentQuray);
 }

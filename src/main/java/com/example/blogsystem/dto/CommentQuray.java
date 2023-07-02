@@ -2,6 +2,8 @@ package com.example.blogsystem.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class CommentQuray {
     private Integer blogId;
@@ -14,8 +16,11 @@ public class CommentQuray {
 
     private Integer pid;
 
+    private String time;
+    private Integer status;
+
     public String getRedisKey(String name){
-        return String.format("%s:%s-%s-%s-%s-%s-%s-%s",name,blogId,userId,commentId,input,page,pageSize,pid);
+        return String.format("%s:%s-%s-%s-%s-%s-%s-%s-%s-%s",name,blogId,userId,commentId,input,page,pageSize,pid,time,status);
     };
 
 }

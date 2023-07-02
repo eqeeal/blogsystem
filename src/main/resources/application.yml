@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: 123456
+    password: root
   redis:
     host: localhost
     port: 6379
@@ -33,4 +33,5 @@ mybatis:
    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 limit-text-file:
   path: D:/111/limitTextFile.txt
-
+blog-image:
+ path: D:/111/image/

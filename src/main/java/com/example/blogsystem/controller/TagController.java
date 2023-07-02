@@ -48,14 +48,12 @@ public class TagController {
 //            HashMap<String, Object> map = new HashMap<>();
 //            map.put("count",cacheCount);
 //            map.put("list",cacheTags);
-
             return  Result.ok(cacheTags);
         } else {
             //没有该缓存，先去数据库拿数据，拿到之后再保存到redis中
             //拿到总条数
 //            cacheCount=tagService.countTags(input);
 //            cacheTags=tagService.findTags(input);
-
             //分页构造器
 //            Page<Tag> pageInfo=new Page<>(page,pageSize);
 
@@ -77,8 +75,16 @@ public class TagController {
 
     @PostMapping("/regist")
     public void registTag(@RequestBody Tag tag){
-
+    }
+    @GetMapping("/findAllTags")
+    public Result<List<Tag>> findAllTags(){
+        List<Tag> tagList= tagService.findAll();
+        System.out.println(tagList.toString());
+        if (tagList.size()>0){
+            return Result.ok(tagList,"所有标签");
+        }else {
+            return Result.fail("没有标签");
+        }
 
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.blogsystem.service.impl;
 
+import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.example.blogsystem.entity.Tag;
 import com.example.blogsystem.mapper.TagMapper;
 import com.example.blogsystem.service.TagService;
@@ -45,5 +46,11 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Override
     public List<Tag> findTags(String input) {
         return query().like(input!=null,"tag_name",input).list();
+    }
+
+    @Override
+    public List<Tag> findTag(String input) {
+        QueryChainWrapper<Tag> tag_name = query().ge("tag_name", input);
+        return null;
     }
 }

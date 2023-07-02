@@ -17,6 +17,7 @@ public class RedisUtil {
     //清理指定的缓存
     public   void  cleanCache(String key){
         Set<String> keys = redisTemplate.keys("*");
+
         for(String i : keys){
             if(i.indexOf(key)!=-1){
                 System.out.println("清理缓存");

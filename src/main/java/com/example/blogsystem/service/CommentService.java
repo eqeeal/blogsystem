@@ -2,6 +2,7 @@ package com.example.blogsystem.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.dto.CommentQuray;
+import com.example.blogsystem.dto.PageCommentDto;
 import com.example.blogsystem.entity.Comment;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -17,9 +18,7 @@ public interface CommentService extends IService<Comment> {
 
     void postMianComment(Comment comment);
 
-    String check(String input);
-
     boolean updateMianCommentStatus(Integer id,Integer status);
 
-    Page<Comment> getPage(CommentQuray commentQuray);
+    Page<PageCommentDto> getPage(CommentQuray commentQuray);
 }

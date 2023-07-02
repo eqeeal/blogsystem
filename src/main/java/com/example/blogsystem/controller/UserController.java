@@ -2,6 +2,7 @@ package com.example.blogsystem.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.blogsystem.common.BaseContext;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.entity.Comment;
 import com.example.blogsystem.entity.User;
@@ -39,6 +40,7 @@ public class UserController {
         List<User> user=userMapper.login(userPhone,userPass);
         if (user.size()>0){
             Message="登录成功";
+            BaseContext.setCurrentId(user.get(0).getId().longValue());
             return Result.ok(Message);
         }
         return Result.fail(Message);

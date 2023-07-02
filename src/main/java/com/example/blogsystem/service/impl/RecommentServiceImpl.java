@@ -7,6 +7,7 @@ import com.example.blogsystem.entity.Recomment;
 import com.example.blogsystem.mapper.RecommentMapper;
 import com.example.blogsystem.service.RecommentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.blogsystem.util.CommentUtil;
 import com.example.blogsystem.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RecommentServiceImpl extends ServiceImpl<RecommentMapper, Recomment> implements RecommentService {
-
+    private final String redisKey = "Recomment";
     @Override
     public void updateRecommentStatus(Integer id, Integer status) {
+        redisUtil.cleanCache(redisKey);
         Recomment recomment = getById(id);
         recomment.setStatus(status);
     }
@@ -31,7 +33,7 @@ public class RecommentServiceImpl extends ServiceImpl<RecommentMapper, Recomment
     private RedisUtil redisUtil;
     @Override
     public Page<Recomment> getAllRecommentFromMainComment(CommentQuray commentQuray) {
-        String key = commentQuray.getRedisKey("Recomment");
+        String key = commentQuray.getRedisKey(redisKey);
         Page<Recomment> recommentPage = new Page<>(commentQuray.getPage(),commentQuray.getPageSize());
         if(redisUtil.hasKey(key)){
             recommentPage= (Page<Recomment>) redisUtil.getCache(key);
@@ -47,5 +49,12 @@ public class RecommentServiceImpl extends ServiceImpl<RecommentMapper, Recomment
                 page(recommentPage,queryWrapper);
         }
         return recommentPage;
+    }
+    @Autowired
+    private CommentUtil commentUtil;
+    @Override
+    public void postRecomment(Recomment recomment) {
+        recomment.setContent(commentUtil.check(recomment.getContent()));
+        save(recomment);
     }
 }

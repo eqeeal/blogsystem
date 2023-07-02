@@ -18,4 +18,6 @@ public interface RecommentService extends IService<Recomment> {
     void updateRecommentStatus(Integer id, Integer status);
 
     Page<Recomment> getAllRecommentFromMainComment(CommentQuray commentQuray);
+
+    void postRecomment(Recomment recomment);
 }

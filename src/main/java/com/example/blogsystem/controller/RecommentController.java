@@ -8,10 +8,7 @@ import com.example.blogsystem.entity.Comment;
 import com.example.blogsystem.entity.Recomment;
 import com.example.blogsystem.service.RecommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -35,5 +32,10 @@ public class RecommentController {
     public Result<String> updateRecommentStatus(Integer id,Integer status){
         recommentService.updateRecommentStatus(id,status);
         return Result.ok("修改成功");
+    }
+    @PostMapping("/postRecomment")
+    public Result<String> postRecomment(@RequestBody Recomment recomment){
+        recommentService.postRecomment(recomment);
+        return Result.ok("发送成功");
     }
 }

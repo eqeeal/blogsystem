@@ -24,20 +24,11 @@ public class MyMateObjectHandler implements MetaObjectHandler {
             metaObject.setValue("updateTime", LocalDateTime.now());
         if(metaObject.hasSetter("updataTime"))
             metaObject.setValue("updataTime", LocalDateTime.now());
-        Long empId=1l;
-        if(metaObject.hasSetter("createUser"))
-            metaObject.setValue("createUser", empId);
-        if(metaObject.hasSetter("updateUser"))
-            metaObject.setValue("updateUser",empId);
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
         log.info("公共字段自动填充[update]");
-        log.info(metaObject.toString());
-        Long empId=1l;
-        if(metaObject.hasSetter("updateUser"))
-            metaObject.setValue("updateUser", empId);
         if(metaObject.hasSetter("updateTime"))
             metaObject.setValue("updateTime", LocalDateTime.now());
     }

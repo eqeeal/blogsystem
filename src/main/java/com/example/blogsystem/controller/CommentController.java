@@ -1,13 +1,12 @@
 package com.example.blogsystem.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.dto.CommentQuray;
+import com.example.blogsystem.dto.PageCommentDto;
 import com.example.blogsystem.entity.Comment;
 import com.example.blogsystem.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -28,8 +27,8 @@ public class CommentController {
     public Result<String> test(){
         return Result.ok();
     };
-    @GetMapping("/page")
-    public Result<Page<Comment>> page(@RequestBody CommentQuray commentQuray){
+    @PostMapping("/page")
+    public Result<Page<PageCommentDto>> page(@RequestBody CommentQuray commentQuray){
         return Result.ok(commentService.getPage(commentQuray),"第"+commentQuray.getPage()+"页");
     }
     @PostMapping("/postMianComment")

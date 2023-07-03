@@ -33,4 +33,5 @@ mybatis:
    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 limit-text-file:
   path: D:/111/limitTextFile.txt
-
+blog-image:
+ path: D:/111/image/

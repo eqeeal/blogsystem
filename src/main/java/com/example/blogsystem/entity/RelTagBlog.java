@@ -28,7 +28,7 @@ public class RelTagBlog implements Serializable {
     /**
      * 关联博客id
      */
-    private String blogId;
+    private Integer blogId;
 
     /**
      * 关联标签id

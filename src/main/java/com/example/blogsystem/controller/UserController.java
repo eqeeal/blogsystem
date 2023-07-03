@@ -62,4 +62,14 @@ public class UserController {
         }
 
     }
+
+    @PostMapping("/updatePass")
+    public Result<String> updatePass(@RequestBody User user){
+        Integer count = userMapper.updatePass(user);
+        if(count >0){
+            return Result.ok("修改密码成功");
+        }else {
+            return Result.fail("修改密码失败");
+        }
+    }
 }

@@ -36,4 +36,8 @@ public interface UserMapper extends BaseMapper<User> {
 
        @Update("update tb_user set userName=#{userName},userAvatar=#{userAvatar},userEmail=#{userEmail} where id=#{id}")
     int updateUser(User user);
+
+
+       @Update("update tb_user set user_pass=#{userPass} where user_phone=#{userPhone}")
+    Integer updatePass(User user);
 }

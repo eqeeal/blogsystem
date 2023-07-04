@@ -33,4 +33,6 @@ public interface BlogService extends IService<Blog> {
     Result getUserByBlogId(Integer id);
 
     Result getTagIds(Integer id);
+
+    Result getCountInfo(Integer id);
 }

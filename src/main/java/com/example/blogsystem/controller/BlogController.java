@@ -62,4 +62,8 @@ public class BlogController {
     public Result getTagIds(@PathVariable()Integer id){
         return blogService.getTagIds(id);
     }
+    @GetMapping("/getCountInfo/{id}")
+    public Result getCountInfo(@PathVariable Integer id){
+        return blogService.getCountInfo(id);
+    }
 }

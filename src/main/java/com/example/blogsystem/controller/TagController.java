@@ -1,26 +1,19 @@
 package com.example.blogsystem.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
+import com.example.blogsystem.dto.Dictionary;
 import com.example.blogsystem.entity.Tag;
-import com.example.blogsystem.entity.User;
 import com.example.blogsystem.mapper.TagMapper;
 import com.example.blogsystem.service.TagService;
 import com.example.blogsystem.util.RedisUtil;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.ResultType;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -161,5 +154,21 @@ public class TagController {
         }
 
     }
+
+
+    //返回标签数据字典
+    @GetMapping("/getTagOptions")
+    public Result getTagOptions(){
+        List<Tag> list = tagService.query().select("id,tag_name").list();
+        List<Dictionary> tagList = list.stream().map(one -> {
+            Dictionary tagDto = new Dictionary();
+            tagDto.setValue(one.getId());
+            tagDto.setLabel(one.getTagName());
+            return tagDto;
+        }).collect(Collectors.toList());
+
+        return Result.ok(tagList);
+    }
+
 
 }

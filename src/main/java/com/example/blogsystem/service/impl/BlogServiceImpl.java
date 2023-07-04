@@ -24,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -248,5 +250,26 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             tagIds.add(one.getTagId());
         });
         return Result.ok(tagIds);
+    }
+
+    @Override
+    public Result getCountInfo(Integer id) {
+        //blog数量
+        List<Blog> blogList = this.query().eq("user_id", id).list();
+        Integer blogCount = blogList.size();
+        //分类数量
+        Integer categoryCount = this.query().select("distinct category_id").eq("user_id", id).count();
+        //标签数量
+        List<Integer> idList = new ArrayList<>();
+        blogList.forEach(one->{
+            idList.add(one.getId());
+        });
+        Integer tagCount = relTagBlogService.query().in("blog_id", idList).count();
+
+        Map<String,Integer> mp = new HashMap<>();
+        mp.put("blogCount",blogCount);
+        mp.put("categoryCount",categoryCount);
+        mp.put("tagCount",tagCount);
+        return Result.ok(mp);
     }
 }

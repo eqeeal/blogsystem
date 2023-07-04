@@ -44,5 +44,5 @@ public class System implements Serializable {
     /**
      * 网页图标ico
      */
-    private LocalDateTime icourl;
+    private String icourl;
 }

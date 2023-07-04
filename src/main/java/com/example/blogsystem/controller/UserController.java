@@ -1,6 +1,7 @@
 package com.example.blogsystem.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.BaseContext;
 import com.example.blogsystem.common.Result;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/user")
 //@CrossOrigin(originPatterns = )
@@ -122,4 +125,23 @@ public Result<Page<User>> pageResult(@RequestParam("page") Integer page, @Reques
     redisUtil.setCache("test",records);
     return Result.ok(commentPage,"第"+page+"页");
 }
+
+//获取当前用户信息（头像、名字）
+    @GetMapping("/getNowUserInfo")
+        public Result getNowUserInfo(@RequestParam String phone){
+        User user = userService.query().eq("user_phone", phone).one();
+        Map<String,String> mp = new HashMap<String,String>(){{
+            put("userName",user.getUserName());
+            put("userAvatar",user.getUserAvatar());
+            put("userId",user.getId().toString());
+        }};
+        return Result.ok(mp);
+    }
+
+    //获取当前用户信息（id）
+    @GetMapping("/getNowUserId")
+    public Result getNowUserId(@RequestParam String phone){
+        User user = userService.query().eq("user_phone", phone).one();
+        return Result.ok(user.getId());
+    }
 }

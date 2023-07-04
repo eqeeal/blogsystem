@@ -2,9 +2,12 @@ package com.example.blogsystem.controller;
 
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.blogsystem.common.Result;
+import com.example.blogsystem.dto.Dictionary;
 import com.example.blogsystem.entity.Category;
+import com.example.blogsystem.entity.Tag;
 import com.example.blogsystem.mapper.CategoryMapper;
 import com.example.blogsystem.util.RedisUtil;
+import com.example.blogsystem.service.CategoryService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.SimpleTriggerContext;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -31,6 +35,7 @@ public class CategoryController {
     @Autowired
     RedisUtil redisUtil;
 
+    CategoryService categoryService;
     /**
      * 获取全部分类(前五条)
      * @return
@@ -173,9 +178,23 @@ public class CategoryController {
     }
 
     @GetMapping("/hotCate")
-    public Result<List<HashMap>> getHotCate(){
+    public Result<List<HashMap>> getHotCate() {
         //获取到各个分类绑定的博客数量 并排序 获取前十条
         List<HashMap> map = categoryMapper.getHotCate();
         return Result.ok(map);
+    }
+
+    //返回标签数据字典
+    @GetMapping("/getCategory")
+    public Result getTagOptions(){
+        List<Category> list = categoryService.query().select("id,category_name").list();
+        List<Dictionary> dictList = list.stream().map(one -> {
+            Dictionary dict = new Dictionary();
+            dict.setValue(one.getId());
+            dict.setLabel(one.getCategoryName());
+            return dict;
+        }).collect(Collectors.toList());
+
+        return Result.ok(dictList);
     }
 }

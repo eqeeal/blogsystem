@@ -32,7 +32,7 @@ public class Blog implements Serializable {
     private String title;
 
     private String path;
-
+    private String imgUrl;
     /**
      * 分类id
      */

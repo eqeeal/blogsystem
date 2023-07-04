@@ -1,13 +1,12 @@
 package com.example.blogsystem.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.dto.TagDto;
+import com.example.blogsystem.dto.Dictionary;
 import com.example.blogsystem.entity.Tag;
-import com.example.blogsystem.entity.User;
 import com.example.blogsystem.mapper.TagMapper;
 import com.example.blogsystem.service.BlogService;
 import com.example.blogsystem.service.RelTagBlogService;
@@ -27,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -245,4 +245,20 @@ public class TagController {
 //        pageInfo.setRecords(result1);
 //        return Result.ok(result, "获取成功");
 //    }
+
+    //返回标签数据字典
+    @GetMapping("/getTagOptions")
+    public Result getTagOptions(){
+        List<Tag> list = tagService.query().select("id,tag_name").list();
+        List<Dictionary> tagList = list.stream().map(one -> {
+            Dictionary tagDto = new Dictionary();
+            tagDto.setValue(one.getId());
+            tagDto.setLabel(one.getTagName());
+            return tagDto;
+        }).collect(Collectors.toList());
+
+        return Result.ok(tagList);
+    }
+
+
 }

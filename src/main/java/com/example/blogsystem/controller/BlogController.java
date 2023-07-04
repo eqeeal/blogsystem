@@ -25,18 +25,18 @@ public class BlogController {
 
 
     @PostMapping("/add")
-    public Result addBlog(@RequestBody Blog blog,@RequestParam List<Integer> tagList){
+    public Result addBlog(@RequestBody Blog blog,@RequestParam("tagList[]") List<Integer> tagList){
         return blogService.addBlog(blog,tagList);
     }
 
     @PutMapping("/update")
-    public Result updateBlog(@RequestBody Blog blog,@RequestParam List<Integer> tagList){
+    public Result updateBlog(@RequestBody Blog blog,@RequestParam("tagList[]") List<Integer> tagList){
         return blogService.updateBlog(blog,tagList);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public Result deleteBlog(@PathVariable Integer id){
-        return blogService.deleteBlog(id);
+    @DeleteMapping("/delete")
+    public Result deleteBlog(@RequestBody List<Integer> idList){
+        return blogService.deleteBlog(idList);
     }
 
     @GetMapping("/page")
@@ -53,4 +53,13 @@ public class BlogController {
         return blogService.getByBlogId(id);
     }
 
+    @GetMapping("/getUserByBlogId/{id}")
+    public Result getUserByBlogId(@PathVariable Integer id){
+        return blogService.getUserByBlogId(id);
+    }
+
+    @GetMapping("/getTagIds/{id}")
+    public Result getTagIds(@PathVariable()Integer id){
+        return blogService.getTagIds(id);
+    }
 }

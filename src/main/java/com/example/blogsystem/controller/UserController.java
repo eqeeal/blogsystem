@@ -74,6 +74,17 @@ public class UserController {
             return Result.fail("更新失败");
         }
     }
+
+    @PostMapping("/updatePass")
+    public Result<String> updatePass(@RequestBody User user){
+        Integer count = userMapper.updatePass(user);
+        if(count >0){
+            return Result.ok("修改密码成功");
+        }else {
+            return Result.fail("修改密码失败");
+        }
+    }
+
 //    @GetMapping
 //    public Result<HashMap> paginUsers(@RequestParam("username")String username, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize){
 //        List<User> cacheUsers =(List<User>) redisTemplate.opsForValue().get("paginCache");

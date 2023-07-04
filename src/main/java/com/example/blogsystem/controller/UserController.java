@@ -1,13 +1,10 @@
 package com.example.blogsystem.controller;
 
-import com.example.blogsystem.common.MyResult;
+import com.example.blogsystem.common.My;
 import com.example.blogsystem.entity.User;
 import com.example.blogsystem.mapper.UserMapper;
-import com.example.blogsystem.service.UserService;
 import com.example.blogsystem.util.RedisUtil;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,14 +22,14 @@ public class UserController {
 
     //获取所有用户信息
     @GetMapping("findAll")
-    public MyResult<User> index() {
+    public My<User> index() {
         List<User> list =userMapper.findAll();
-        return  new MyResult(200,"查询成功",list);
+        return  new My(200,"查询成功",list);
     }
 
     //登录
     @GetMapping("login")
-    public MyResult<String> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass) {
+    public My<String> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass) {
         String Message = "登录失败";
         int code = -1;
         List<User> user = userMapper.login(userPhone, userPass);
@@ -40,21 +37,21 @@ public class UserController {
             Message = "登录成功";
             code = 200;
         }
-        return new MyResult(code, Message, user);
+        return new My(code, Message, user);
     }
 
     @PostMapping("getbyPhone")
-    public  MyResult<User> getbyPhone(@RequestParam("userphone")String userPhone){
+    public My<User> getbyPhone(@RequestParam("userphone")String userPhone){
         int code = -1;
         List<User> list = userMapper.findUserByPhone(userPhone);
         if (list.size() > 0) {
             code = 200;
         }
-        return new MyResult(code, "查询成功", list);
+        return new My(code, "查询成功", list);
     }
 
     @PostMapping("add")
-    public MyResult<User> register(@RequestBody User user) {
+    public My<User> register(@RequestBody User user) {
         redisUtil.cleanCache("tb_user");
         System.out.println(user.toString());
         int code = -1;
@@ -62,44 +59,44 @@ public class UserController {
         if (user1.size() == 0) {
             code = 200;
             userMapper.res(user.getUserName(), user.getUserPass(), user.getUserPhone());
-            return new MyResult(code, "注册成功", null);
+            return new My(code, "注册成功", null);
         }
-        return new MyResult(code, "注册失败", null);
+        return new My(code, "注册失败", null);
     }
 
     //删除某个用户
     @PostMapping("delete")
-    public MyResult<Integer> deleteUserById(@RequestBody User user) {
+    public My<Integer> deleteUserById(@RequestBody User user) {
         Integer result = userMapper.deleteById(user);
         redisUtil.cleanCache("tb_user");
         if (result > 0) {
-            return new MyResult(200, "删除成功", "");
+            return new My(200, "删除成功", "");
         }
 
-        return new MyResult(-1, "删除失败", "");
+        return new My(-1, "删除失败", "");
     }
 
     //更新
     @PostMapping("update")
-    public MyResult<String> updateUser(@RequestBody User user) {
+    public My<String> updateUser(@RequestBody User user) {
         redisUtil.cleanCache("tb_user");
         List<User> list = userMapper.findUserById(user.getId());
         if (list.size() > 0) {
             int count = userMapper.updateUser(user);
             if (count > 0) {
-                return new MyResult(200, "更新成功", user);
+                return new My(200, "更新成功", user);
             } else {
-                return new MyResult(-1, "更新失败", user);
+                return new My(-1, "更新失败", user);
             }
         } else {
-            return new MyResult(-1, "无该用户", user);
+            return new My(-1, "无该用户", user);
         }
 
     }
 
     //分页查询
     @GetMapping("page")
-    public MyResult<HashMap> paginUsers(@RequestParam("username") String username, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+    public My<HashMap> paginUsers(@RequestParam("username") String username, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         Integer countCache = (Integer) redisUtil.getCache("tb_user:count:"+pageNum+"-"+pageSize+":"+"username"+":"+username);//获取值
         List<User> cacheUsers = (List<User>) redisUtil.getCache("tb_user:"+pageNum+"-"+pageSize+":"+"username"+":"+username);
         if (cacheUsers == null || countCache == null) {//判断是否有值
@@ -120,18 +117,18 @@ public class UserController {
         HashMap<String, Object> map = new HashMap();
         map.put("count", countCache);
         map.put("list", cacheUsers);
-        return new MyResult(200, "查询成功", map);
+        return new My(200, "查询成功", map);
     }
 
     //批量删除
     @PostMapping("delUsers")
-    public MyResult<Integer> delUsers(@RequestBody Map<String,List<Integer>> data){
+    public My<Integer> delUsers(@RequestBody Map<String,List<Integer>> data){
         List<Integer> ids =data.get("ids");
         Integer count = userMapper.delUsers(ids);
         if(count >0){
-        return new MyResult(200,"批量删除成功",count);
+        return new My(200,"批量删除成功",count);
         }else{
-            return new MyResult(-1,"批量删除失败",-1);
+            return new My(-1,"批量删除失败",-1);
         }
     }
 

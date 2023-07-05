@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/user")
 //@CrossOrigin(originPatterns = )
@@ -80,6 +82,17 @@ public class UserController {
             return Result.fail("更新失败");
         }
     }
+
+    @PostMapping("/updatePass")
+    public Result<String> updatePass(@RequestBody User user){
+        Integer count = userMapper.updatePass(user);
+        if(count >0){
+            return Result.ok("修改密码成功");
+        }else {
+            return Result.fail("修改密码失败");
+        }
+    }
+
 //    @GetMapping
 //    public Result<HashMap> paginUsers(@RequestParam("username")String username, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize){
 //        List<User> cacheUsers =(List<User>) redisTemplate.opsForValue().get("paginCache");
@@ -117,6 +130,25 @@ public Result<Page<User>> pageResult(@RequestParam("page") Integer page, @Reques
     redisUtil.setCache("test",records);
     return Result.ok(commentPage,"第"+page+"页");
 }
+
+//获取当前用户信息（头像、名字）
+    @GetMapping("/getNowUserInfo")
+        public Result getNowUserInfo(@RequestParam String phone){
+        User user = userService.query().eq("user_phone", phone).one();
+        Map<String,String> mp = new HashMap<String,String>(){{
+            put("userName",user.getUserName());
+            put("userAvatar",user.getUserAvatar());
+            put("userId",user.getId().toString());
+        }};
+        return Result.ok(mp);
+    }
+
+    //获取当前用户信息（id）
+    @GetMapping("/getNowUserId")
+    public Result getNowUserId(@RequestParam String phone){
+        User user = userService.query().eq("user_phone", phone).one();
+        return Result.ok(user.getId());
+    }
 @GetMapping("/getInfoById")
 public Result<User> getInfoById(@RequestParam("id") Integer id){
     User user=new User();

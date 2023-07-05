@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -17,6 +15,8 @@ public class CommentUtil {
     private RedisUtil redisUtil;
     @Value("${limit-text-file.path}")
     private String limitTextFilePath;
+    @Value("${blog-richTxt.path}")
+    private String richTxtFilePath;
 
     public String check(String input) {
         String key="limitText";
@@ -55,6 +55,50 @@ public class CommentUtil {
             }
         }
         return input;
+    }
+
+
+    //存储富文本文件
+    public String store(String origin) throws IOException {
+        //文件名称
+        String  name = UUID.randomUUID()+".txt";
+        File dir = new File(richTxtFilePath);
+        if(!dir.exists() && !dir.isDirectory()){
+            dir.mkdir();
+        }
+        File file = new File(dir,name);
+        FileWriter fw = new FileWriter(file);
+        BufferedWriter bw = new BufferedWriter(fw);
+        try {
+            bw.write(origin);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            bw.close();
+            fw.close();
+        }
+        return name;
+    }
+    //读取富文本文件字符串
+    public String read(String path) throws IOException {
+        File file = new File(richTxtFilePath,path);
+        FileInputStream fileInputStream = null;
+        String richStr="";
+
+        try {
+            fileInputStream = new FileInputStream(file);
+            byte[] bytes = new byte[1024*5];
+            int count=0;
+            while ((count = fileInputStream.read(bytes))!=-1){
+                 String str= new String(bytes,0,count);
+                 richStr+=str;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            fileInputStream.close();
+        }
+        return richStr;
     }
 
 }

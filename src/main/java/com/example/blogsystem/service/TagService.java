@@ -21,4 +21,7 @@ public interface TagService extends IService<Tag> {
     Integer countTags(String input);
 
     List<Tag> findTags(String input);
+
+
+    List<Tag> findTag(String input);
 }

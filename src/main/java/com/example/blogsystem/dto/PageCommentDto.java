@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class PageCommentDto extends Comment {
     private String name;
-    private String userAvatar;
+    private Integer recommentCount;
 }

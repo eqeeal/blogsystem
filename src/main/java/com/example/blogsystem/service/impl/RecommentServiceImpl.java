@@ -45,8 +45,7 @@ public class RecommentServiceImpl extends ServiceImpl<RecommentMapper, Recomment
             queryWrapper.eq(commentQuray.getUserId()!=null,Recomment::getUserId,commentQuray.getUserId());
             queryWrapper.like(commentQuray.getInput()!=null,Recomment::getContent,commentQuray.getInput());
             queryWrapper.orderByDesc(Recomment::getCreateTime);
-            if(recommentPage.getTotal()!=0)
-                page(recommentPage,queryWrapper);
+            page(recommentPage,queryWrapper);
         }
         return recommentPage;
     }
@@ -56,5 +55,15 @@ public class RecommentServiceImpl extends ServiceImpl<RecommentMapper, Recomment
     public void postRecomment(Recomment recomment) {
         recomment.setContent(commentUtil.check(recomment.getContent()));
         save(recomment);
+        redisUtil.cleanCache("BLOGPAGE");
+        redisUtil.cleanCache(redisKey);
+        redisUtil.cleanCache("Comment");
+    }
+
+    @Override
+    public Integer getRecomentReCount(Integer id) {
+        LambdaQueryWrapper<Recomment> queryWrapper=new LambdaQueryWrapper<>();
+        queryWrapper.eq(Recomment::getPid,id);
+        return count(queryWrapper);
     }
 }

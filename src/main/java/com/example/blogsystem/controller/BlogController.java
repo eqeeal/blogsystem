@@ -1,5 +1,6 @@
 package com.example.blogsystem.controller;
 
+import com.example.blogsystem.common.BaseContext;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.entity.Blog;
 import com.example.blogsystem.service.BlogService;
@@ -51,6 +52,15 @@ public class BlogController {
     @GetMapping("/getByBlogId/{id}")
     public Result getByBlogId(@PathVariable Integer id){
         return blogService.getByBlogId(id);
+    }
+
+    @GetMapping("/getEchartsData")
+    public Result<Map<String,List<String>>> getEchartsData(Integer userId){
+        return Result.ok(blogService.getEchartsData(userId));
+    }
+    @GetMapping("/getEchartsDataByBlogId")
+    public Result<Map<String,List<String>>> getEchartsDataByBlogId(Integer blogId){
+        return Result.ok(blogService.getEchartsDataByBlogId(blogId));
     }
 
 }

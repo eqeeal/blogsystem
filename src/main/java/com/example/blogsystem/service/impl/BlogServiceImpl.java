@@ -1,24 +1,34 @@
 package com.example.blogsystem.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
+import com.example.blogsystem.dto.PageBlogDto;
 import com.example.blogsystem.entity.Blog;
+import com.example.blogsystem.entity.Comment;
+import com.example.blogsystem.entity.Recomment;
 import com.example.blogsystem.entity.RelTagBlog;
 import com.example.blogsystem.mapper.BlogMapper;
 import com.example.blogsystem.service.BlogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.blogsystem.service.CommentService;
+import com.example.blogsystem.service.RecommentService;
 import com.example.blogsystem.service.RelTagBlogService;
 import com.example.blogsystem.util.RedisUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.example.blogsystem.common.RedisConst.*;
@@ -38,6 +48,11 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     private RelTagBlogService relTagBlogService;
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private RecommentService recommentService;
 
     //发布博客
     @Override
@@ -135,8 +150,19 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
                 .like(title!=null,"title",title);
         this.page(page,queryWrapper);
         //加入redis缓存,设置过期时间
-        redisUtil.setCache(key,page.getRecords(),BLOG_TTL,TimeUnit.MINUTES);
-        return Result.ok(page);
+        Page<PageBlogDto> blogDtoPage=new Page<>(pageNum,pageSize);
+        BeanUtils.copyProperties(page,blogDtoPage,"records");
+        List<PageBlogDto> list=page.getRecords().stream().map((x)->{
+            PageBlogDto pageBlogDto = new PageBlogDto();
+            BeanUtils.copyProperties(x,pageBlogDto);
+            Map<String, Integer> map = commentService.blogNonCount(x.getId());
+            pageBlogDto.setNonCount(map.get("nonCount"));
+            pageBlogDto.setTotalCount(map.get("total"));
+            return pageBlogDto;
+        }).collect(Collectors.toList());
+        blogDtoPage.setRecords(list);
+        redisUtil.setCache(key,blogDtoPage.getRecords(),BLOG_TTL,TimeUnit.MINUTES);
+        return Result.ok(blogDtoPage);
     }
 
     private Blog redisQueryBlog(Blog blog) {
@@ -165,5 +191,79 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         blog = redisQueryBlog(blog);
         if(blog == null)return Result.fail("博客不存在");
         return Result.ok(blog);
+    }
+
+    @Override
+    public Map<String, List<String>> getEchartsData(Integer userId) {
+        LambdaQueryWrapper<Blog> blogLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        blogLambdaQueryWrapper.eq(Blog::getUserId,userId);
+        List<Blog> blogList = list(blogLambdaQueryWrapper);
+        List<String> da=new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            da.add(String.format("前%d天",30-i*5));
+        }
+        int[] arr=new int[6];
+        blogList.forEach((blog)->{
+            LambdaQueryWrapper<Comment> commentLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            commentLambdaQueryWrapper.eq(Comment::getBlogId,blog.getId());
+            List<Comment> commentList = commentService.list(commentLambdaQueryWrapper);
+            commentList.forEach((comment)->{
+                LambdaQueryWrapper<Recomment> recommentLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                recommentLambdaQueryWrapper.eq(Recomment::getCommentId,comment.getId());
+                List<Recomment> recommentList = recommentService.list(recommentLambdaQueryWrapper);
+                recommentList.forEach((recomment)->{
+                    long until = recomment.getCreateTime().until(LocalDateTime.now(), ChronoUnit.DAYS);
+                    if(until<31)
+                        arr[(int) (until/5)]+=1;
+                });
+                long until = comment.getCreateTime().until(LocalDateTime.now(), ChronoUnit.DAYS);
+                if(until<31)
+                    arr[(int) (until/5)]+=1;
+            });
+        });
+        List<String> stringList=new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            stringList.add(arr[5-i]+"");
+        }
+        Map<String, List<String>> map=new HashMap<>();
+        map.put("dateData",da);
+        map.put("dataData",stringList);
+        return map;
+    }
+
+    @Override
+    public Map<String, List<String>> getEchartsDataByBlogId(Integer blogId) {
+        LambdaQueryWrapper<Blog> blogLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        blogLambdaQueryWrapper.eq(Blog::getId,blogId);
+        Blog blog = getOne(blogLambdaQueryWrapper);
+        LambdaQueryWrapper<Comment> commentLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        commentLambdaQueryWrapper.eq(Comment::getBlogId,blog.getId());
+        List<Comment> commentList = commentService.list(commentLambdaQueryWrapper);
+        List<String> da=new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            da.add(String.format("前%d天",30-i*5));
+        };
+        int[] arr=new int[6];
+        commentList.forEach((comment)->{
+            LambdaQueryWrapper<Recomment> recommentLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            recommentLambdaQueryWrapper.eq(Recomment::getCommentId,comment.getId());
+            List<Recomment> recommentList = recommentService.list(recommentLambdaQueryWrapper);
+            recommentList.forEach((recomment)->{
+                long until = recomment.getCreateTime().until(LocalDateTime.now(), ChronoUnit.DAYS);
+                if(until<31)
+                    arr[(int) (until/5)]+=1;
+            });
+            long until = comment.getCreateTime().until(LocalDateTime.now(), ChronoUnit.DAYS);
+            if(until<31)
+                arr[(int) (until/5)]+=1;
+        });
+        List<String> stringList=new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            stringList.add(arr[5-i]+"");
+        }
+        Map<String, List<String>> map=new HashMap<>();
+        map.put("dateData",da);
+        map.put("dataData",stringList);
+        return map;
     }
 }

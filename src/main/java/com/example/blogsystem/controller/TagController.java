@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.dto.TagDto;
 import com.example.blogsystem.dto.Dictionary;
+import com.example.blogsystem.entity.RelTagBlog;
 import com.example.blogsystem.entity.Tag;
 import com.example.blogsystem.mapper.TagMapper;
 import com.example.blogsystem.service.BlogService;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/tag")
-@CrossOrigin(originPatterns = "http://localhost:8080")
+//@CrossOrigin(originPatterns = "http://localhost:8080")
 public class TagController {
     @Autowired
     private TagService tagService;
@@ -179,6 +180,15 @@ public class TagController {
     public Result<String> deleteTag(@RequestParam("id") Integer id){
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",id);
+        QueryWrapper queryWrapper1 = new QueryWrapper();
+        queryWrapper1.eq("tag_id",id);
+
+        Tag byId = tagService.getById(id);
+        //返回tag被使用的次数
+        int count=relTagBlogService.count(queryWrapper1);
+        if (count!=0){
+            return Result.fail("删除失败");
+        }
         if (tagService.remove(queryWrapper)){
             redisUtil.cleanAll();
             return Result.ok(null,"删除成功");
@@ -188,6 +198,37 @@ public class TagController {
 
     }
 
+//批量删除
+    @PostMapping("/deleteTags")
+    public Result<List<Tag>> deleteTags(@RequestBody List<Tag> tags){
+        redisUtil.cleanCache("cacheTags");
+//        QueryWrapper queryWrapper1 = new QueryWrapper();
+
+        int count=0;
+        List<Tag> tagAlter=new ArrayList<>();
+        for (Tag tag : tags) {
+            LambdaQueryWrapper<RelTagBlog> tagLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            tagLambdaQueryWrapper.eq(RelTagBlog::getTagId,tag.getId());
+            //返回tag被使用的次数
+            count=relTagBlogService.count(tagLambdaQueryWrapper);
+            if (count==0){
+            //说明此标签在被使用，无法删除,将此标签存储
+                tagService.removeById(tag);
+//            continue;
+            }
+            else {
+                tagAlter.add(tag);
+            }
+//            tagService.removeById(tag.getId());
+        }
+
+        if (tagAlter.size()==0){
+            return Result.ok(tagAlter,"全部标签删除成功");
+        }else{
+            return Result.ok(tagAlter,"部分标签无法删除");
+        }
+
+    }
 
     /**
      * 热门标签排行
@@ -196,8 +237,9 @@ public class TagController {
 //    @Autowired
 //    private RedisTemplate  redisTemplate;
     @GetMapping("/showHot")
-    public Result<List<TagDto>> showHot(){
+    public Result<List<TagDto>> showHot(@RequestParam("command") Integer command){
         String key="abc";
+
 //        List<TagDto> cacheTags= (List<TagDto>) redisTemplate.opsForValue().get(key);
 //        if (cacheTags!=null&&cacheTags.size()!=0){
 //
@@ -214,7 +256,7 @@ public class TagController {
             dtoList.sort((x,y)->{
                 return y.getHot()- x.getHot();
             });
-            dtoList= dtoList.subList(0,Math.min(20,dtoList.size()));
+            dtoList= dtoList.subList(0,Math.min(command,dtoList.size()));
 //            redisTemplate.opsForValue().set(key,dtoList);
             return Result.ok(dtoList);
 

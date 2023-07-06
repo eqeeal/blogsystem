@@ -34,7 +34,7 @@ public class CategoryController {
     CategoryMapper categoryMapper;
     @Autowired
     RedisUtil redisUtil;
-
+    @Autowired
     CategoryService categoryService;
     /**
      * 获取全部分类(前五条)

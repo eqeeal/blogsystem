@@ -1,5 +1,6 @@
 package com.example.blogsystem.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.blogsystem.common.My;
 import com.example.blogsystem.mapper.BlogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,5 +105,12 @@ public class BlogController {
     @GetMapping("/getCountInfo/{id}")
     public Result getCountInfo(@PathVariable Integer id){
         return blogService.getCountInfo(id);
+    }
+    @GetMapping("/getBlogByUserId")
+    public Result getBlogByUserId(Integer id){
+        LambdaQueryWrapper<Blog> blogLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        blogLambdaQueryWrapper.eq(Blog::getUserId,id);
+        blogLambdaQueryWrapper.orderByDesc(Blog::getCreateTime);
+        return Result.ok(blogService.list(blogLambdaQueryWrapper));
     }
 }

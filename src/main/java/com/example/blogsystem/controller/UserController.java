@@ -95,19 +95,18 @@ public class UserController {
         return Result.fail(Message);
     }
     @PostMapping("/add")
-    public Result<Integer> register(@RequestBody User user){
-        user.setUserName(user.getUserPhone());
+//    public Result<Integer> register(@RequestBody User user) {
+//        user.setUserName(user.getUserPhone());
+//    }
     public Result<User> register(@RequestBody User user){
 //        System.out.println(user.toString());
         List<User> user1=userMapper.findUserByPhone(user.getUserPhone());
         if (user1.size()== 0){
 //            userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
             userService.save(user);
-            return Result.ok(user);
 //            userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
-            userService.save(user);
             BaseContext.setCurrentId(user.getId());
-            return Result.ok(user.getId(),"注册成功");
+            return Result.ok(user,"注册成功");
         }
         return Result.fail("注册失败");
     }
@@ -219,14 +218,4 @@ public Result<Page<User>> pageResult(@RequestParam("page") Integer page, @Reques
         }
     }
 
-@GetMapping("/getInfoById")
-public Result<User> getInfoById(@RequestParam("id") Integer id){
-    User user=new User();
-    user.setId(id);
-    return Result.ok(userService.getById(user));
-}
-    @GetMapping("/getInfoByPid")
-    public Result<User> getInfoByPid(@RequestParam("id") Integer id){
-        return Result.ok(userService.getByPid(id));
-    }
 }

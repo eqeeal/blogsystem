@@ -59,4 +59,12 @@ public interface CategoryMapper extends BaseMapper<Category> {
     @Select("select category_name,category_id,count(*) as count from tb_blog,tb_category where tb_blog.category_id=tb_category.id " +
             "GROUP BY tb_blog.category_id ORDER BY count(*) desc LIMIT 10 ")
     List<HashMap> getHotCate();
+
+    //获取前十热门分类
+    @Select("select category_name as name,count(*) as count from tb_blog,tb_category where tb_blog.category_id=tb_category.id " +
+            "GROUP BY tb_blog.category_id ORDER BY count(*) desc")
+    List<HashMap> getHotCategory();
+    @Select("select category_name as name,count(*) as count from tb_blog,tb_category where tb_blog.user_id = #{id} and tb_blog.category_id=tb_category.id " +
+            "GROUP BY tb_blog.category_id ORDER BY count(*) desc")
+    List<HashMap> getHotCategoryByUserId(Integer id);
 }

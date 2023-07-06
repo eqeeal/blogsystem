@@ -197,4 +197,21 @@ public class CategoryController {
 
         return Result.ok(dictList);
     }
+
+    //所有数据排序(用户id)
+    @GetMapping("/hotCategory")
+    public Result<List<HashMap>> getHotCategory() {
+        //获取到各个分类绑定的博客数量 并排序
+        List<HashMap> map = categoryMapper.getHotCategory();
+        return Result.ok(map);
+    }
+
+    //所有数据排序(用户id)
+    @GetMapping("/getHotCategoryByUserId")
+    public Result<List<HashMap>> getHotCategoryByUserId(@RequestParam(required = false) Integer id) {
+        //获取到各个分类绑定的博客数量 并排序
+        List<HashMap> map = categoryMapper.getHotCategoryByUserId(id);
+        return Result.ok(map);
+    }
+
 }

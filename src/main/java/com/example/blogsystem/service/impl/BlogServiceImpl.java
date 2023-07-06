@@ -195,7 +195,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             BeanUtils.copyProperties(blog,blogDto);
             Category one = categoryService.query().select("category_name").eq("id", blog.getCategoryId()).one();
             blogDto.setCategoryName(one.getCategoryName());
-
+            Map<String, Integer> map = commentService.blogNonCount(blog.getId());
+            blogDto.setNonCount(map.get("nonCount"));
+            blogDto.setTotalCount(map.get("total"));
             //富文本文件
             String path = new String();
             try {

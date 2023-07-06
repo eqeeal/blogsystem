@@ -217,5 +217,15 @@ public Result<Page<User>> pageResult(@RequestParam("page") Integer page, @Reques
             return new My(-1,"批量删除失败",-1);
         }
     }
+    @GetMapping("/getInfoById")
+    public Result<User> getInfoById(@RequestParam("id") Integer id){
+        User user=new User();
+        user.setId(id);
+        return Result.ok(userService.getById(user));
+    }
 
+    @GetMapping("/getInfoByPid")
+    public Result<User> getInfoByPid(@RequestParam("id") Integer id){
+        return Result.ok(userService.getByPid(id));
+    }
 }

@@ -9,4 +9,6 @@ import java.util.List;
 @Data
 public class BlogDto extends Blog {
     private String categoryName;
+    private Integer nonCount;
+    private Integer totalCount;
 }

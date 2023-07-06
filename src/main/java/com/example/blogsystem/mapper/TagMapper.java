@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,4 +28,9 @@ public interface TagMapper extends BaseMapper<Tag> {
     @Insert("insert into tb_tag(tag_name) values(tag_name=#{tagName}) ")
     boolean insertTag(Tag tag);
 
+    @Select("select tb_tag.tag_name as name,t1.ct as count from tb_tag,(select tag_id,count(*) as ct from tb_rel_tag_blog group by tag_id) as t1 " +
+            "where tb_tag.id=t1.tag_id order by count desc")
+    List<Map<String,Integer>> getHot();
+
 }
+

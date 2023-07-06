@@ -302,5 +302,15 @@ public class TagController {
         return Result.ok(tagList);
     }
 
+    @GetMapping("/getHot")
+    public Result getHot(){
+        List<Map<String, Integer>> hot = tagMapper.getHot();
+        return Result.ok(hot);
+    }
 
+    @GetMapping("/getHotByUserId")
+    public Result getHotByUserId(@RequestParam() Integer id){
+        List<Map<String, Integer>> hot = tagMapper.getHot();
+        return Result.ok(hot);
+    }
 }

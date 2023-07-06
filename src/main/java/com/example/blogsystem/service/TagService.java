@@ -2,6 +2,9 @@ package com.example.blogsystem.service;
 
 import com.example.blogsystem.entity.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
+import io.lettuce.core.dynamic.annotation.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface TagService extends IService<Tag> {
 
+    List<Tag> findAll();
+
+    Integer countTags(String input);
+
+    List<Tag> findTags(String input);
+
+
+    List<Tag> findTag(String input);
 }

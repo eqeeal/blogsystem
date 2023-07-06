@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,17 +32,17 @@ public class Blog implements Serializable {
     private String title;
 
     private String path;
-
+    private String imgUrl;
     /**
      * 分类id
      */
     private Integer categoryId;
 
     @TableField(fill = FieldFill.INSERT)
-    private String createTime;
+    private LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 访问量

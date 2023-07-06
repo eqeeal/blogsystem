@@ -1,15 +1,16 @@
 package com.example.blogsystem.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author shj
@@ -25,6 +26,7 @@ public class Comment implements Serializable {
     /**
      * 主键id
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -45,13 +47,13 @@ public class Comment implements Serializable {
     /**
      * 	审批状态：0-待审核、1-表示审核通过、2-审核未通过
      */
-    private Byte status;
+    private Integer status;
 
     /**
      * 评论时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private String createTime;
+    private LocalDateTime createTime;
 
     /**
      * 评论头像

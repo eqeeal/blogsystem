@@ -1,24 +1,35 @@
 package com.example.blogsystem.controller;
-
 import com.example.blogsystem.common.My;
 import com.example.blogsystem.entity.User;
 import com.example.blogsystem.mapper.UserMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.api.R;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.blogsystem.common.BaseContext;
+import com.example.blogsystem.common.Result;
+import com.example.blogsystem.entity.Comment;
+import com.example.blogsystem.entity.User;
+import com.example.blogsystem.mapper.UserMapper;
+import com.example.blogsystem.service.UserService;
 import com.example.blogsystem.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-//@CrossOrigin(originPatterns = )
 @RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserMapper userMapper;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private UserService userService;
 
     //获取所有用户信息
     @GetMapping("findAll")
@@ -27,18 +38,6 @@ public class UserController {
         return  new My(200,"查询成功",list);
     }
 
-    //登录
-    @GetMapping("login")
-    public My<String> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass) {
-        String Message = "登录失败";
-        int code = -1;
-        List<User> user = userMapper.login(userPhone, userPass);
-        if (user.size() > 0) {
-            Message = "登录成功";
-            code = 200;
-        }
-        return new My(code, Message, user);
-    }
 
     @PostMapping("getbyPhone")
     public My<User> getbyPhone(@RequestParam("userphone")String userPhone){
@@ -50,19 +49,6 @@ public class UserController {
         return new My(code, "查询成功", list);
     }
 
-    @PostMapping("add")
-    public My<User> register(@RequestBody User user) {
-        redisUtil.cleanCache("tb_user");
-        System.out.println(user.toString());
-        int code = -1;
-        List<User> user1 = userMapper.findUserByPhone(user.getUserPhone());
-        if (user1.size() == 0) {
-            code = 200;
-            userMapper.res(user.getUserName(), user.getUserPass(), user.getUserPhone());
-            return new My(code, "注册成功", null);
-        }
-        return new My(code, "注册失败", null);
-    }
 
     //删除某个用户
     @PostMapping("delete")
@@ -91,7 +77,99 @@ public class UserController {
         } else {
             return new My(-1, "无该用户", user);
         }
+    }
 
+    //    @GetMapping
+    @GetMapping("/login")
+    public Result<String> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass){
+        String Message="登录失败";
+        List<User> user=userMapper.login(userPhone,userPass);
+        if (user.size()>0){
+            Message="登录成功";
+            BaseContext.setCurrentId(user.get(0).getId().longValue());
+            return Result.ok(Message);
+        }
+        return Result.fail(Message);
+    }
+    @PostMapping("/add")
+    public Result<User> register(@RequestBody User user){
+//        System.out.println(user.toString());
+        List<User> user1=userMapper.findUserByPhone(user.getUserPhone());
+        if (user1.size()== 0){
+//            userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
+            userService.save(user);
+            return Result.ok(user);
+        }
+        return Result.fail("注册失败");
+    }
+
+
+
+    @PostMapping("/updatePass")
+    public Result<String> updatePass(@RequestBody User user){
+        Integer count = userMapper.updatePass(user);
+        if(count >0){
+            return Result.ok("修改密码成功");
+        }else {
+            return Result.fail("修改密码失败");
+        }
+    }
+
+//    @GetMapping
+//    public Result<HashMap> paginUsers(@RequestParam("username")String username, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize){
+//        List<User> cacheUsers =(List<User>) redisTemplate.opsForValue().get("paginCache");
+//        Integer cacheCount = (Integer) redisTemplate.opsForValue().get("countCache");
+//        if(cacheUsers==null || cacheCount ==null){
+//            //没有该缓存，先去数据库拿数据，拿到之后再保存到redis中
+//            //拿到总条数
+//            cacheCount = userMapper.countUsers();
+//            //拿到分页查询数据
+//            //将pageNum进行转换：pageNum：第几页，但是数据库limit需要的是开始查询的位置
+//            pageNum = (pageNum - 1) * pageSize;//开始查询的位置
+//            cacheUsers = userMapper.paginUsers(username,pageNum,pageSize);
+//            //将查询的数据放入Redis中
+//            redisTemplate.opsForValue().set("paginCache",cacheUsers);
+//            redisTemplate.opsForValue().set("countCache",cacheCount);
+//            System.out.println("分页数据：加入缓存");
+//        }else{
+//            System.out.println("分页数据：使用缓存");
+//        }
+//        //可以使用HashMap来保存总条数以及查询结果一起发送给前端
+//        HashMap<String,Object> map = new HashMap();
+//        map.put("count",cacheCount);
+//        map.put("list",cacheUsers);
+//        return  new Result(200,"查询成功",map);
+//    }
+//
+@GetMapping("/page1")
+public Result<Page<User>> pageResult(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize){
+    Page<User> commentPage=new Page<>(page,pageSize);
+    LambdaQueryWrapper<User> queryWrapper=new LambdaQueryWrapper<>();
+//    queryWrapper.like(input!=null,Comment::getContent,input);
+    userService.page(commentPage,queryWrapper);
+    List<User> records = commentPage.getRecords();
+
+    redisUtil.setCache("test",records);
+    return Result.ok(commentPage,"第"+page+"页");
+}
+
+//获取当前用户信息（头像、名字）
+    @GetMapping("/getNowUserInfo")
+        public Result getNowUserInfo(@RequestParam String phone){
+        User user = userService.query().eq("user_phone", phone).one();
+        Map<String,String> mp = new HashMap<String,String>(){{
+            put("userName",user.getUserName());
+            put("userAvatar",user.getUserAvatar());
+            put("userId",user.getId().toString());
+        }};
+        return Result.ok(mp);
+    }
+
+    //获取当前用户信息（id）
+    @GetMapping("/getNowUserId")
+    public Result getNowUserId(@RequestParam String phone){
+        User user = userService.query().eq("user_phone", phone).one();
+        return Result.ok(user.getId());
     }
 
     //分页查询

@@ -21,5 +21,7 @@ public interface BlogMapper extends BaseMapper<Blog> {
     @Select("select count(*) from tb_blog where user_id =#{id} ")
     Integer countByUserId(@RequestParam("id")Integer id);
 
+    @Select("select count(*) from tb_blog")
+    Integer countBlog();
 
 }

@@ -1,5 +1,7 @@
 package com.example.blogsystem.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.blogsystem.dto.CommentQuray;
 import com.example.blogsystem.entity.Recomment;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +15,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface RecommentService extends IService<Recomment> {
 
+    void updateRecommentStatus(Integer id, Integer status);
+
+    Page<Recomment> getAllRecommentFromMainComment(CommentQuray commentQuray);
+
+    void postRecomment(Recomment recomment);
 }

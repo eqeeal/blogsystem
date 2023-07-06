@@ -5,6 +5,7 @@ import com.example.blogsystem.entity.Blog;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -30,6 +31,9 @@ public interface BlogService extends IService<Blog> {
 
     Result getByBlogId(Integer id);
 
+    Map<String,List<String>> getEchartsData(Integer userId);
+
+    Map<String,List<String>> getEchartsDataByBlogId(Integer blogId);
     Result getUserByBlogId(Integer id);
 
     Result getTagIds(Integer id);

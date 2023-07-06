@@ -4,15 +4,31 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blogsystem.common.Result;
+import com.example.blogsystem.dto.TagDto;
 import com.example.blogsystem.dto.Dictionary;
+import com.example.blogsystem.entity.RelTagBlog;
 import com.example.blogsystem.entity.Tag;
 import com.example.blogsystem.mapper.TagMapper;
+import com.example.blogsystem.service.BlogService;
+import com.example.blogsystem.service.RelTagBlogService;
 import com.example.blogsystem.service.TagService;
 import com.example.blogsystem.util.RedisUtil;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.ResultType;
+import org.apache.ibatis.annotations.Update;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -25,12 +41,15 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/tag")
+//@CrossOrigin(originPatterns = "http://localhost:8080")
 public class TagController {
     @Autowired
     private TagService tagService;
 
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private RelTagBlogService relTagBlogService;
 
     @Autowired
     private RedisUtil redisUtil;
@@ -41,11 +60,11 @@ public class TagController {
      * @return
      */
     @GetMapping("/findAll")
-    public Result<Page<Tag>> pageTags(@RequestParam Integer page,@RequestParam Integer pageSize,@RequestParam(required = false) String input){
+    public Result<Page<TagDto>> pageTags(@RequestParam Integer page, @RequestParam Integer pageSize, @RequestParam(required = false) String input){
         //分页构造器
         Page<Tag> pageInfo=new Page<>(page,pageSize);
         String key="cacheTags:"+page+"-"+pageSize+"-"+input;
-        Page<Tag> cacheTags= (Page<Tag>) redisUtil.getCache(key);
+        Page<TagDto> cacheTags= (Page<TagDto>) redisUtil.getCache(key);
 //        Long cacheCount= (Long) redisUtil.getCache("cacheCount");
 //        if (cacheCount!=null && cacheTags!=null){
         if (cacheTags!=null){
@@ -68,13 +87,28 @@ public class TagController {
 
             //查询分页
             tagService.page(pageInfo,queryWrapper);
-            cacheTags=pageInfo;
+            Page<TagDto> pageInfo1 = new Page<>();
+           BeanUtils.copyProperties(pageInfo,pageInfo1,"records");
+            List<Tag> records = pageInfo.getRecords();
+            List<TagDto> list = new ArrayList<>();
+            records.forEach(one->{
+                TagDto tagDto = new TagDto();
+                BeanUtils.copyProperties(one,tagDto);
+                //查询blog表
+                Integer blogCount = relTagBlogService.query().eq("tag_id", one.getId()).count();
+                tagDto.setHot(blogCount);
+                tagDto.setBlogCount(blogCount);
+                list.add(tagDto);
+            });
+
+            pageInfo1.setRecords(list);
+
 //            cacheCount=pageInfo.getTotal();
             //缓存
-            redisUtil.setCache(key,pageInfo);
+            redisUtil.setCache(key,pageInfo1);
 //            redisUtil.setCache("cacheCount",pageInfo.getTotal());
 
-            return Result.ok(pageInfo,"获取成功");
+            return Result.ok(pageInfo1,"获取成功");
         }
     }
 
@@ -92,7 +126,7 @@ public class TagController {
 //        tagService.remove(queryWrapper); delete from tag where ..
         //select tag_id from tag where
         if(tag1 != null){
-            return Result.fail("标签已存在");
+            return Result.fail("添加失败");
         }
         tagService.save(tag);
         redisUtil.cleanAll();
@@ -146,6 +180,15 @@ public class TagController {
     public Result<String> deleteTag(@RequestParam("id") Integer id){
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",id);
+        QueryWrapper queryWrapper1 = new QueryWrapper();
+        queryWrapper1.eq("tag_id",id);
+
+        Tag byId = tagService.getById(id);
+        //返回tag被使用的次数
+        int count=relTagBlogService.count(queryWrapper1);
+        if (count!=0){
+            return Result.fail("删除失败");
+        }
         if (tagService.remove(queryWrapper)){
             redisUtil.cleanAll();
             return Result.ok(null,"删除成功");
@@ -155,6 +198,95 @@ public class TagController {
 
     }
 
+//批量删除
+    @PostMapping("/deleteTags")
+    public Result<List<Tag>> deleteTags(@RequestBody List<Tag> tags){
+        redisUtil.cleanCache("cacheTags");
+//        QueryWrapper queryWrapper1 = new QueryWrapper();
+
+        int count=0;
+        List<Tag> tagAlter=new ArrayList<>();
+        for (Tag tag : tags) {
+            LambdaQueryWrapper<RelTagBlog> tagLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            tagLambdaQueryWrapper.eq(RelTagBlog::getTagId,tag.getId());
+            //返回tag被使用的次数
+            count=relTagBlogService.count(tagLambdaQueryWrapper);
+            if (count==0){
+            //说明此标签在被使用，无法删除,将此标签存储
+                tagService.removeById(tag);
+//            continue;
+            }
+            else {
+                tagAlter.add(tag);
+            }
+//            tagService.removeById(tag.getId());
+        }
+
+        if (tagAlter.size()==0){
+            return Result.ok(tagAlter,"全部标签删除成功");
+        }else{
+            return Result.ok(tagAlter,"部分标签无法删除");
+        }
+
+    }
+
+    /**
+     * 热门标签排行
+     */
+//
+//    @Autowired
+//    private RedisTemplate  redisTemplate;
+    @GetMapping("/showHot")
+    public Result<List<TagDto>> showHot(@RequestParam("command") Integer command){
+        String key="abc";
+
+//        List<TagDto> cacheTags= (List<TagDto>) redisTemplate.opsForValue().get(key);
+//        if (cacheTags!=null&&cacheTags.size()!=0){
+//
+//            return  Result.ok(cacheTags);
+//        } else {
+            List<Tag> list = tagService.list();
+            List<TagDto> dtoList=list.stream().map((x)->{
+                TagDto tmp=new TagDto();
+                BeanUtils.copyProperties(x,tmp);
+                tmp.setHot(relTagBlogService.query().eq("tag_id", x.getId()).count());
+                tmp.setBlogCount(tmp.getHot());
+                return tmp;
+            }).collect(Collectors.toList());
+            dtoList.sort((x,y)->{
+                return y.getHot()- x.getHot();
+            });
+            dtoList= dtoList.subList(0,Math.min(command,dtoList.size()));
+//            redisTemplate.opsForValue().set(key,dtoList);
+            return Result.ok(dtoList);
+
+//        }
+    }
+
+    public int compare(TagDto p1, TagDto p2) {
+        return p1.getHot() - p2.getHot();  // 按照年龄升序排序
+    }
+//    @GetMapping("/showHot")
+//    public Result<List<TagDto>> showHotTag() {
+//        List<Tag> tagList = tagService.list();
+//        Page<Tag> pageInfo = new Page<>(1, 20);
+//        String key = "cacheTags:" + 1 + "-" + 20;
+//        List<TagDto> tagDtoList = new ArrayList<>();
+//        tagList.forEach(tag -> {
+//            TagDto tagDto = new TagDto();
+//            BeanUtils.copyProperties(tag, tagDto);
+//            Integer blogCount = relTagBlogService.query().eq("tag_id", tag.getId()).count();
+//            tagDto.setBlogCount(blogCount);
+//            tagDto.setHot(blogCount);
+//            tagDtoList.add(tagDto);
+//        });
+//        // 对tagDtoList按照bloghot降序排序
+//        tagDtoList.sort((o1, o2) -> o2.getHot().compareTo(o1.getHot()));
+//        // 取前20个tagDto
+//        List<TagDto> result = tagDtoList.stream().limit(20).collect(Collectors.toList());
+//        pageInfo.setRecords(result1);
+//        return Result.ok(result, "获取成功");
+//    }
 
     //返回标签数据字典
     @GetMapping("/getTagOptions")

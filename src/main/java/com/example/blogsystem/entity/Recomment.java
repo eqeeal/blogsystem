@@ -1,9 +1,10 @@
 package com.example.blogsystem.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,12 +26,14 @@ public class Recomment implements Serializable {
     /**
      * 主键id
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
      * 主评论id
      */
-    private String commentId;
+
+    private Integer commentId;
 
     /**
      * 回复内容
@@ -51,7 +54,7 @@ public class Recomment implements Serializable {
      * 评论时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private String createTime;
+    private LocalDateTime createTime;
 
     /**
      * 父回复id，没有则为0

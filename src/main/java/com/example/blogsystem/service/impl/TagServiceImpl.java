@@ -5,6 +5,7 @@ import com.example.blogsystem.entity.Tag;
 import com.example.blogsystem.mapper.TagMapper;
 import com.example.blogsystem.service.TagService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.blogsystem.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,14 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Override
     public List<Tag> findAll() {
         List<Tag> tags = redisTemplate.opsForList().range("tags", 0, -1);
-        if(tags!=null && tags.size()!=0){
+        if(tags!=null &&tags.size()!=0){
             return tags;
         }
         else {
             List<Tag> list =this.list();//获取tag表全部数据
-            redisTemplate.opsForList().rightPush("tags",list);
+            list.forEach((x)->{
+                redisTemplate.opsForList().rightPush("tags",x);
+            });
             return list;
         }
 

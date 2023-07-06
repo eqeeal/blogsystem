@@ -17,12 +17,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
+//@CrossOrigin(originPatterns = )
 public class UserController {
     @Autowired
     private UserMapper userMapper;
@@ -81,17 +83,20 @@ public class UserController {
 
     //    @GetMapping
     @GetMapping("/login")
-    public Result<String> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass){
+    public Result<Integer> login(@RequestParam("userPhone") String userPhone, @RequestParam("userPass") String userPass, HttpSession session){
         String Message="登录失败";
         List<User> user=userMapper.login(userPhone,userPass);
         if (user.size()>0){
             Message="登录成功";
-            BaseContext.setCurrentId(user.get(0).getId().longValue());
-            return Result.ok(Message);
+            BaseContext.setCurrentId(user.get(0).getId());
+            session.setAttribute("userId",user.get(0).getId());
+            return Result.ok(user.get(0).getId(),Message);
         }
         return Result.fail(Message);
     }
     @PostMapping("/add")
+    public Result<Integer> register(@RequestBody User user){
+        user.setUserName(user.getUserPhone());
     public Result<User> register(@RequestBody User user){
 //        System.out.println(user.toString());
         List<User> user1=userMapper.findUserByPhone(user.getUserPhone());
@@ -99,6 +104,10 @@ public class UserController {
 //            userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
             userService.save(user);
             return Result.ok(user);
+//            userMapper.res(user.getUserName(),user.getUserPass(),user.getUserPhone());
+            userService.save(user);
+            BaseContext.setCurrentId(user.getId());
+            return Result.ok(user.getId(),"注册成功");
         }
         return Result.fail("注册失败");
     }
@@ -210,4 +219,14 @@ public Result<Page<User>> pageResult(@RequestParam("page") Integer page, @Reques
         }
     }
 
+@GetMapping("/getInfoById")
+public Result<User> getInfoById(@RequestParam("id") Integer id){
+    User user=new User();
+    user.setId(id);
+    return Result.ok(userService.getById(user));
+}
+    @GetMapping("/getInfoByPid")
+    public Result<User> getInfoByPid(@RequestParam("id") Integer id){
+        return Result.ok(userService.getByPid(id));
+    }
 }

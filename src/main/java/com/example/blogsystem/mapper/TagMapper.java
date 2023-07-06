@@ -27,6 +27,4 @@ public interface TagMapper extends BaseMapper<Tag> {
     @Insert("insert into tb_tag(tag_name) values(tag_name=#{tagName}) ")
     boolean insertTag(Tag tag);
 
-
-
 }

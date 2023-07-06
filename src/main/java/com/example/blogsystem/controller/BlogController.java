@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.blogsystem.common.BaseContext;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.entity.Blog;
 import com.example.blogsystem.service.BlogService;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -79,6 +81,15 @@ public class BlogController {
     @GetMapping("/getByBlogId/{id}")
     public Result getByBlogId(@PathVariable Integer id){
         return blogService.getByBlogId(id);
+    }
+
+    @GetMapping("/getEchartsData")
+    public Result<Map<String,List<String>>> getEchartsData(Integer userId){
+        return Result.ok(blogService.getEchartsData(userId));
+    }
+    @GetMapping("/getEchartsDataByBlogId")
+    public Result<Map<String,List<String>>> getEchartsDataByBlogId(Integer blogId){
+        return Result.ok(blogService.getEchartsDataByBlogId(blogId));
     }
 
     @GetMapping("/getUserByBlogId/{id}")

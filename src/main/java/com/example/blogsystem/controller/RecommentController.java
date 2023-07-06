@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class RecommentController {
     @Autowired
     private RecommentService recommentService;
-    @GetMapping("/getPageRecommentFromMainComment")
+    @PostMapping("/getPageRecommentFromMainComment")
     public Result<Page<Recomment>> getAllRecommentFromMainComment(@RequestBody CommentQuray commentQuray){
         return Result.ok(recommentService.getAllRecommentFromMainComment(commentQuray));
     }
@@ -37,5 +37,9 @@ public class RecommentController {
     public Result<String> postRecomment(@RequestBody Recomment recomment){
         recommentService.postRecomment(recomment);
         return Result.ok("发送成功");
+    }
+    @GetMapping("/getRecomentReCount")
+    public Result<Integer> getRecomentReCount(Integer id){
+        return Result.ok(recommentService.getRecomentReCount(id));
     }
 }

@@ -2,4 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.blogsystem.mapper.SystemMapper">
 
+    <update id="updateSystem">
+        update tb_system
+        <set>
+            <if test="sitename != null">
+                sitename=#{sitename},
+            </if>
+            <if test="logourl !=null">
+                logourl=#{logourl},
+            </if>
+            <if test="themeColor !=null">
+                theme_color=#{themeColor},
+            </if>
+            <if test="icourl !=null">
+                icourl=#{icourl},
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
 </mapper>

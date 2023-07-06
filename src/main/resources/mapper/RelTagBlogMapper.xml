@@ -2,4 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.blogsystem.mapper.RelTagBlogMapper">
 
+    <select id="gettagname" resultType="java.lang.String">
+        SELECT distinct tag_name from tb_tag as a,tb_rel_tag_blog as b where a.id=b.tag_id
+    </select>
 </mapper>

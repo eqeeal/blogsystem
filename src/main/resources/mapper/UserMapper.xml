@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.blogsystem.mapper.UserMapper">
-    <insert id="res">
-        insert into tb_user(user_name,user_pass,user_phone) values(#{userName},#{userPass},#{userPhone})
-    </insert>
+<!--    <insert id="res">-->
+<!--        insert into tb_user(user_name,user_pass,user_phone) values(#{userName},#{userPass},#{userPhone})-->
+<!--    </insert>-->
 
     <update id="updateUser">
         update tb_user
@@ -17,26 +17,39 @@
             <if test="userEmail !=null">
                 user_email=#{userEmail},
             </if>
+            <if test="userPass !=null">
+                user_pass=#{userPass},
+            </if>
         </set>
         <where>
             id=#{id}
         </where>
     </update>
 
-    <delete id="deleteById">
-        delete from tb_user where id=#{id}
+<!--    批量删除-->
+    <delete id="delUsers">
+        DELETE FROM tb_user
+        WHERE id IN
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </delete>
 
-    <select id="findAll" resultType="com.example.blogsystem.entity.User">
-        select * from tb_user
-    </select>
-    <select id="login" resultType="com.example.blogsystem.entity.User">
-        select * from tb_user
-        <where>
-            user_phone=#{userPhone} and user_pass=#{userPass}
-        </where>
-    </select>
-    <select id="findUserByPhone" resultType="com.example.blogsystem.entity.User">
-        select * from tb_user where user_phone=#{userPhone}
-    </select>
+<!--    <delete id="deleteById">-->
+<!--        delete from tb_user where id=#{id}-->
+<!--    </delete>-->
+
+<!--    <select id="findAll" resultType="com.example.blogsystem.entity.User">-->
+<!--        select * from tb_user-->
+<!--    </select>-->
+<!--    <select id="login" resultType="com.example.blogsystem.entity.User">-->
+<!--        select * from tb_user-->
+<!--        <where>-->
+<!--            user_phone=#{userPhone} and user_pass=#{userPass}-->
+<!--        </where>-->
+<!--    </select>-->
+<!--    <select id="findUserByPhone" resultType="com.example.blogsystem.entity.User">-->
+<!--        select * from tb_user where user_phone=#{userPhone}-->
+<!--    </select>-->
 </mapper>

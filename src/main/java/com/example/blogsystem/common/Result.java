@@ -1,10 +1,13 @@
 package com.example.blogsystem.common;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
+
 
 @Data
 @NoArgsConstructor
@@ -32,4 +35,5 @@ public class Result<T> {
     public static <T> Result<T> fail(String Msg){
         return new Result<>(false, Msg, null, null);
     }
+
 }

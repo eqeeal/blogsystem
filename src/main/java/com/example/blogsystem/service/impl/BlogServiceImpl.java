@@ -208,20 +208,20 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         }).collect(Collectors.toList());
         page1.setRecords(blogDtoList);
 
-        //加入redis缓存,设置过期时间
-        Page<PageBlogDto> blogDtoPage=new Page<>(pageNum,pageSize);
-        BeanUtils.copyProperties(page,blogDtoPage,"records");
-        List<PageBlogDto> list=page.getRecords().stream().map((x)->{
-            PageBlogDto pageBlogDto = new PageBlogDto();
-            BeanUtils.copyProperties(x,pageBlogDto);
-            Map<String, Integer> map = commentService.blogNonCount(x.getId());
-            pageBlogDto.setNonCount(map.get("nonCount"));
-            pageBlogDto.setTotalCount(map.get("total"));
-            return pageBlogDto;
-        }).collect(Collectors.toList());
-        blogDtoPage.setRecords(list);
-        redisUtil.setCache(key,blogDtoPage.getRecords(),BLOG_TTL,TimeUnit.MINUTES);
-        return Result.ok(blogDtoPage);
+//        //加入redis缓存,设置过期时间
+//        Page<PageBlogDto> blogDtoPage=new Page<>(pageNum,pageSize);
+//        BeanUtils.copyProperties(page,blogDtoPage,"records");
+//        List<PageBlogDto> list=page.getRecords().stream().map((x)->{
+//            PageBlogDto pageBlogDto = new PageBlogDto();
+//            BeanUtils.copyProperties(x,pageBlogDto);
+//            Map<String, Integer> map = commentService.blogNonCount(x.getId());
+//            pageBlogDto.setNonCount(map.get("nonCount"));
+//            pageBlogDto.setTotalCount(map.get("total"));
+//            return pageBlogDto;
+//        }).collect(Collectors.toList());
+//        blogDtoPage.setRecords(list);
+//        redisUtil.setCache(key,blogDtoPage.getRecords(),BLOG_TTL,TimeUnit.MINUTES);
+//        return Result.ok(blogDtoPage);
         redisUtil.setCache(key,page1,BLOG_TTL,TimeUnit.MINUTES);
         return Result.ok(page1);
     }
@@ -313,24 +313,27 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             da.add(String.format("前%d天",30-i*5));
         };
         int[] arr=new int[6];
+        Map<String, List<String>> map=new HashMap<>();
         commentList.forEach((comment)->{
             LambdaQueryWrapper<Recomment> recommentLambdaQueryWrapper=new LambdaQueryWrapper<>();
             recommentLambdaQueryWrapper.eq(Recomment::getCommentId,comment.getId());
             List<Recomment> recommentList = recommentService.list(recommentLambdaQueryWrapper);
             recommentList.forEach((recomment)->{
                 long until = recomment.getCreateTime().until(LocalDateTime.now(), ChronoUnit.DAYS);
-                if(until<31)
+                if(until<=30)
+//                    map.put((int) (until/5), map.getOrDefault((int) (until/5),0)+(int) (until/5));
                     arr[(int) (until/5)]+=1;
             });
             long until = comment.getCreateTime().until(LocalDateTime.now(), ChronoUnit.DAYS);
-            if(until<31)
+            if(until<=30)
+//                map.put((int) (until/5), map.getOrDefault((int) (until/5),0)+(int) (until/5));
                 arr[(int) (until/5)]+=1;
         });
         List<String> stringList=new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             stringList.add(arr[5-i]+"");
         }
-        Map<String, List<String>> map=new HashMap<>();
+
         map.put("dateData",da);
         map.put("dataData",stringList);
         return map;

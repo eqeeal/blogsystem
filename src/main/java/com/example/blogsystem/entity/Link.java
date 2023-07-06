@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +17,7 @@ import lombok.Setter;
  * @author shj
  * @since 2023-06-28
  */
-@Getter
-@Setter
+@Data
 @TableName("tb_link")
 public class Link implements Serializable {
 
@@ -25,7 +26,7 @@ public class Link implements Serializable {
     /**
      * 主键id
      */
-    private Integer id;
+    private int id;
 
     /**
      * 链接名称
@@ -40,11 +41,10 @@ public class Link implements Serializable {
     /**
      * 排序值
      */
-    private Byte sort;
+    private int sort;
 
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
     private String createTime;
 }

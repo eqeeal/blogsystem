@@ -361,7 +361,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     @Override
     public Result getCountInfo(Integer id) {
         //blog数量
-        List<Blog> blogList = this.query().eq("user_id", id).list();
+        List<Blog> blogList = this.query().eq(id!=-1,"user_id", id).list();
         Integer blogCount = blogList.size();
         //分类数量
         Integer categoryCount = this.query().select("distinct category_id").eq("user_id", id).count();

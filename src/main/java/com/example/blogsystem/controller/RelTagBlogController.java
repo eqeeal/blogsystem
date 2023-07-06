@@ -51,4 +51,9 @@ public class RelTagBlogController {
         return Result.ok(list,"成功");
     }
 
+    @GetMapping("/tagAndCount")
+    public Result tagAndCount(){
+        List<Map<String, Integer>> maps = relTagBlogMapper.tagAndCount();
+        return Result.ok(maps);
+    }
 }

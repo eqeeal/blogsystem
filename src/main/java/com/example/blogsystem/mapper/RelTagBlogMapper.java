@@ -29,4 +29,9 @@ public interface RelTagBlogMapper extends BaseMapper<RelTagBlog> {
 
     @Select("select a.category_name,count(*) as c from tb_category as a,tb_blog as b where a.id=b.category_id group by b.category_id")
     List<Map<Integer,String>> getCategoryCount();
+
+    @Select("select tb_tag.tag_name as name,ct from tb_tag," +
+            "(select tag_id,count(*) as ct from tb_rel_tag_blog group by tag_id) as t1  " +
+            "where tb_tag.id=t1.tag_id ")
+    List<Map<String,Integer>> tagAndCount();
 }

@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.blogsystem.mapper.LinkMapper">
+    <!--  数据插入或更新的Sql语句  -->
+    <update id="updateLink">
+        update tb_link
+        <set>
+            <if test="link != null">
+                link = #{link},
+            </if>
+            <if test="linkName != null">
+                link_name = #{linkName},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <!--其他功能sql语句 -->
+    <!--    批量删除-->
+    <delete id="delLinks">
+        DELETE FROM tb_user
+        WHERE id IN
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
 
 </mapper>

@@ -1,5 +1,6 @@
 package com.example.blogsystem.controller;
 
+import com.example.blogsystem.common.BaseContext;
 import com.example.blogsystem.common.Result;
 import com.example.blogsystem.entity.Blog;
 import com.example.blogsystem.service.BlogService;
@@ -25,18 +26,18 @@ public class BlogController {
 
 
     @PostMapping("/add")
-    public Result addBlog(@RequestBody Blog blog,@RequestParam List<Integer> tagList){
+    public Result addBlog(@RequestBody Blog blog,@RequestParam("tagList[]") List<Integer> tagList){
         return blogService.addBlog(blog,tagList);
     }
 
     @PutMapping("/update")
-    public Result updateBlog(@RequestBody Blog blog,@RequestParam List<Integer> tagList){
+    public Result updateBlog(@RequestBody Blog blog,@RequestParam("tagList[]") List<Integer> tagList){
         return blogService.updateBlog(blog,tagList);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public Result deleteBlog(@PathVariable Integer id){
-        return blogService.deleteBlog(id);
+    @DeleteMapping("/delete")
+    public Result deleteBlog(@RequestBody List<Integer> idList){
+        return blogService.deleteBlog(idList);
     }
 
     @GetMapping("/page")
@@ -53,4 +54,26 @@ public class BlogController {
         return blogService.getByBlogId(id);
     }
 
+    @GetMapping("/getEchartsData")
+    public Result<Map<String,List<String>>> getEchartsData(Integer userId){
+        return Result.ok(blogService.getEchartsData(userId));
+    }
+    @GetMapping("/getEchartsDataByBlogId")
+    public Result<Map<String,List<String>>> getEchartsDataByBlogId(Integer blogId){
+        return Result.ok(blogService.getEchartsDataByBlogId(blogId));
+    }
+
+    @GetMapping("/getUserByBlogId/{id}")
+    public Result getUserByBlogId(@PathVariable Integer id){
+        return blogService.getUserByBlogId(id);
+    }
+
+    @GetMapping("/getTagIds/{id}")
+    public Result getTagIds(@PathVariable()Integer id){
+        return blogService.getTagIds(id);
+    }
+    @GetMapping("/getCountInfo/{id}")
+    public Result getCountInfo(@PathVariable Integer id){
+        return blogService.getCountInfo(id);
+    }
 }

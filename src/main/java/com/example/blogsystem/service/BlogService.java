@@ -5,6 +5,7 @@ import com.example.blogsystem.entity.Blog;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -20,7 +21,7 @@ public interface BlogService extends IService<Blog> {
     Result addBlog(Blog blog, List<Integer> tagList);
 
     //删除博客
-    Result deleteBlog(Integer id);
+    Result deleteBlog(List<Integer> idList);
 
     //修改博客
     Result updateBlog(Blog blog,List<Integer> tagList);
@@ -30,4 +31,12 @@ public interface BlogService extends IService<Blog> {
 
     Result getByBlogId(Integer id);
 
+    Map<String,List<String>> getEchartsData(Integer userId);
+
+    Map<String,List<String>> getEchartsDataByBlogId(Integer blogId);
+    Result getUserByBlogId(Integer id);
+
+    Result getTagIds(Integer id);
+
+    Result getCountInfo(Integer id);
 }

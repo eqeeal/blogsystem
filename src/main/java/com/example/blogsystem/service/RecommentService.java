@@ -20,4 +20,6 @@ public interface RecommentService extends IService<Recomment> {
     Page<Recomment> getAllRecommentFromMainComment(CommentQuray commentQuray);
 
     void postRecomment(Recomment recomment);
+
+    Integer getRecomentReCount(Integer id);
 }
